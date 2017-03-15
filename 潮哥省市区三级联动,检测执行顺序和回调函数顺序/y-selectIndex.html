@@ -1,0 +1,143 @@
+<!--控制台显示结果：-->
+<!--加载页面后：-->
+    <!--getList完成-->
+    <!--getList完成-->
+    <!--getList完成-->
+
+    <!--province完成-->
+
+    <!--getList完成-->
+    <!--city完成-->
+    <!--area完成（因为默认显示的北京是直辖市）-->
+
+    <!--area完成-->
+
+<!--更改省份province后：-->
+    <!--改变province的事件-->
+    <!--getList完成-->
+    <!--getList完成-->
+
+    <!--city完成-->
+
+    <!--getList完成-->
+    <!--provinceToFirstArea完成-->
+    <!--area完成-->
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>潮哥省市区三级联动</title>
+    <style type="text/css">
+        #wrap {
+            position: absolute;
+            left: 50%;
+            width: 480px;
+            height: 500px;
+            margin-left: -240px;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            background: yellowgreen;
+        }
+
+        #wrap div {
+            float: left;
+            width: 120px;
+            margin-left: 20px;
+            margin-top: 20px;
+        }
+
+        #wrap div select {
+            width: 120px;
+        }
+    </style>
+    <script type="text/javascript" src="./jquery-1.11.2.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            function getList(code, flag, callback) {
+                $.ajax({
+                    url: 'data.php',
+                    type: 'get',
+                    async: true,
+                    dataType: 'jsonp',
+                    data: {citycode: code, flag: flag},
+                    success: callback
+                });
+                console.log("getList完成");
+            }
+
+            var province = function (data) {
+                $.each(data, function (i, elem) {
+                    var opt = $('<option></option>').attr('value', elem.code).append(elem.name);
+                    $('#province').append(opt);
+                })
+                console.log("province完成");
+            };
+            var city = function (data) {
+                $.each(data, function (i, elem) {
+                    var opt = $('<option></option>').attr('value', elem.code).append(elem.name);
+                    $('#city').append(opt);
+                })
+                if (data.length == 1) {
+                    var citycode = $("#city").children("option").eq(0).attr("value");
+                    getList(citycode, 3, area);
+                }
+                console.log("city完成");
+//			firstCityCode = data[0].code;
+            };
+            var area = function (data) {
+                $.each(data, function (i, elem) {
+                    var opt = $('<option></option>').attr('value', elem.code).append(elem.name);
+                    $('#area').append(opt);
+                })
+                console.log("area完成");
+            };
+            var provinceToFirstArea = function (data) {
+                var areaData = data[0].code;
+                getList(areaData, 3, area);
+                console.log("provinceToFirstArea完成");
+            };
+
+
+            getList(0, 1, province);
+            getList('110000', 2, city);
+            getList('110100', 3, area);
+//		定义一个全局变量 firstCityCode
+//		var firstCityCode = '110000';
+
+
+            $("#province").on('change', function () {
+                console.log("改变province的事件");
+                $("#city").children("option").remove();
+                $("#area").children("option").remove();
+                getList($(this).val(), 2, city);
+//			console.log($("#city").children("option").eq(0).attr("value")); //undefined
+//			console.log(firstCityCode); //输出的是上次的firstCityCode
+
+//			得到默认的第一个area:
+                getList($(this).val(), 2, provinceToFirstArea);
+            });
+            $("#city").on('change', function () {
+                $("#area").children("option").remove();
+                getList($(this).val(), 3, area);
+            });
+        });
+    </script>
+</head>
+<body>
+<div id="wrap">
+    <div>
+        <select id="province">
+        </select>
+    </div>
+    <div>
+        <select id="city">
+        </select>
+    </div>
+    <div>
+        <select id="area">
+        </select>
+    </div>
+</div>
+</body>
+</html>
