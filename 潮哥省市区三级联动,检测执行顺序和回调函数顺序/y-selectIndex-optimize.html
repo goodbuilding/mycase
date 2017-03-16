@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>潮哥省市区三级联动</title>
+    <style type="text/css">
+        #wrap {
+            position: absolute;
+            left: 50%;
+            width: 480px;
+            height: 500px;
+            margin-left: -240px;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            background: yellowgreen;
+        }
+
+        #wrap div {
+            float: left;
+            width: 120px;
+            margin-left: 20px;
+            margin-top: 20px;
+        }
+
+        #wrap div select {
+            width: 120px;
+        }
+    </style>
+    <script type="text/javascript" src="./jquery-1.11.2.js"></script>
+    <script>
+        $(document).ready(function () {
+            function getList(code, flag, callback) {
+                $.ajax({
+                    url: 'data.php',
+                    type: 'get',
+                    dataType: 'jsonp',
+                    data: {citycode: code, flag: flag},
+                    success: callback
+                });
+            }
+
+            function eachOpt(data, select) {
+                $.each(data, function (i, elem) {
+                    var opt = $('<option></option>').attr('value', elem.code).append(elem.name);
+                    $(select).append(opt);
+                })
+            }
+
+            var province = function (data) {
+                eachOpt(data, '#province');
+            };
+            var city = function (data) {
+                eachOpt(data, '#city');
+//                if (data.length == 1) {
+//                    getList(data[0].code, 3, area);
+//                }
+                getList(data[0].code, 3, area);
+            };
+            var area = function (data) {
+                eachOpt(data, '#area');
+            };
+
+            getList(0, 1, province);
+            getList('110000', 2, city);
+            getList('110100', 3, area);
+
+            $('#province').on('change', function () {
+                $('#city').children('option').remove();
+                $('#area').children('option').remove();
+                getList($(this).val(), 2, city);
+            });
+            $('#city').on('change', function () {
+                $('#area').children('option').remove();
+                getList($(this).val(), 3, area);
+            });
+//            var province = function(data) {
+//                $.each(data,function(i,elem) {
+//                    var opt = $('<option></option>').attr('value',elem.code).append(elem.name);
+//                    $('#city').append(opt);
+//                })
+//            };
+        });
+    </script>
+</head>
+<body>
+<div id="wrap">
+    <div>
+        <select id="province">
+        </select>
+    </div>
+    <div>
+        <select id="city">
+        </select>
+    </div>
+    <div>
+        <select id="area">
+        </select>
+    </div>
+</div>
+</body>
+</html>
