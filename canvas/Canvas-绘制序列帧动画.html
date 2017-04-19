@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>潮哥Canvas-绘制序列帧动画</title>
+</head>
+<body>
+<div id="wrap">
+    <canvas id="cavsElem">
+        你的浏览器不支持canvas，请升级浏览器哦
+    </canvas>
+</div>
+<div id="btn-dir">
+    <button id="btn-dir-down">↓</button>
+    <button id="btn-dir-left">←</button>
+    <button id="btn-dir-right">→</button>
+    <button id="btn-dir-up">↑</button>
+</div>
+
+<script>
+    (function () {
+        var canvas = document.querySelector('#cavsElem');
+        var ctx = canvas.getContext('2d');
+        canvas.width = 400;
+        canvas.height = 400;
+        canvas.style.border = '1px solid #ccc';
+
+        var dirIndex = 0;
+        var img = new Image;
+        img.src = 'imgs/gameImgs/DMMban.png';
+        img.onload = function () {
+            var frameIndex = 0;
+            setInterval(function () {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, frameIndex * 40, dirIndex * 65, 40, 65, 0, 0, 40 * 2, 65 * 2);
+                frameIndex++;
+                frameIndex %= 4;
+            }, 1000 / 8);
+        }
+
+        var btnDirList = document.getElementById('btn-dir').children;
+        for (var i = 0; i < btnDirList.length; i++) {
+            btnDirList[i].index = i;
+            btnDirList[i].addEventListener('click', function () {
+                dirIndex = this.index;
+            });
+        }
+    })();
+</script>
+</body>
+</html>
